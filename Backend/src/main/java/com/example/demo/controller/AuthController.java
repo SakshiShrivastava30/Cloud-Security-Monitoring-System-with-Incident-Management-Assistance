@@ -1,8 +1,8 @@
-
 package com.example.demo.controller;
 
 import com.example.demo.entity.User;
 import com.example.demo.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,23 +16,25 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(
+    public ResponseEntity<String> register(
             @RequestParam String name,
             @RequestParam String email,
             @RequestParam String password) {
 
         User user = authService.register(name, email, password);
 
-        return "User registered successfully. User ID: " + user.getId();
+        return ResponseEntity.ok(
+                "User registered successfully. User ID: " + user.getId()
+        );
     }
 
-
     @PostMapping("/login")
-    public String login(
+    public ResponseEntity<String> login(
             @RequestParam String email,
             @RequestParam String password) {
 
-        return authService.login(email, password);
+        String token = authService.login(email, password);
+
+        return ResponseEntity.ok(token);
     }
 }
-
