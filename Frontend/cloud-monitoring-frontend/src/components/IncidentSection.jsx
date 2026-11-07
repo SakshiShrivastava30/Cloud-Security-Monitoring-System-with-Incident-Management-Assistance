@@ -1,5 +1,5 @@
 
-import Panel from "./asset-inventory/panel";
+import Panel from "./panel";
 
 const providers = [
   {
