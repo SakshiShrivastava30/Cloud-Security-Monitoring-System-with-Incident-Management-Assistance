@@ -13,15 +13,15 @@ const providers = [
   {
     name: "Azure",
     logo: "Azure",
-    count: 42,
+    count: 3,
     score: 90,
     color: "#168dff",
     status: "Healthy",
   },
   {
     name: "Google Cloud",
-    logo: "🌈",
-    count: 28,
+    logo: "Google Cloud",
+    count: 42,
     score: 88,
     color: "#ffc21b",
     status: "Degraded",
@@ -42,9 +42,11 @@ function CloudProviderStatus() {
       <div className="cm-provider-grid">
         {providers.map((provider) => (
           <article className="cm-provider" key={provider.name}>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>
-              {provider.logo}
-            </div>
+            {provider.logo && (
+              <div style={{ fontSize: 22, fontWeight: 800 }}>
+                {provider.logo}
+              </div>
+            )}
 
             <div className="cm-provider-name">
               {provider.name}
@@ -85,11 +87,12 @@ function CloudProviderStatus() {
   );
 }
 
-function RiskyAssets() {
+function RiskyAssets({ onOpenModule }) {
   return (
     <Panel
       title="Top Risky Assets"
       action="View All"
+      onAction={() => onOpenModule("Asset Inventory")}
       className="cm-risk-panel"
     >
       <div className="cm-table-wrap">
@@ -107,15 +110,12 @@ function RiskyAssets() {
             {assets.map(([name, score, provider, status]) => (
               <tr key={name}>
                 <td>{name}</td>
-
                 <td>
                   <span className={`cm-pill ${status}`}>
                     {score}
                   </span>
                 </td>
-
                 <td>{provider}</td>
-
                 <td>
                   <span className={`cm-pill ${status}`}>
                     {status}
@@ -132,32 +132,62 @@ function RiskyAssets() {
 
 function QuickActions({ onCreateIncident, onOpenModule }) {
   const actions = [
-    ["⚠", "Create Incident", onCreateIncident],
-    [
-      "⬡",
-      "Run Scan",
-      () =>
-        alert(
-          "Demo: scan request prepared. Connect the backend scan API to execute it."
-        ),
-    ],
-    ["▶", "Execute Playbook", () => onOpenModule("Playbook Automation")],
-    ["▤", "Generate Report", () => onOpenModule("Report Generator")],
-    ["⬡", "Add Asset", () => onOpenModule("Asset Inventory")],
-    ["♟", "Manage Users", () => onOpenModule("User & Team Management")],
+    {
+      icon: "⚠",
+      label: "Create Incident",
+      action: onCreateIncident,
+      enabled: Boolean(onCreateIncident),
+    },
+    {
+      icon: "⬡",
+      label: "Run Scan",
+      action: () => onOpenModule("Vulnerability Scanner"),
+      enabled: false,
+    },
+    {
+      icon: "▶",
+      label: "Execute Playbook",
+      action: () => onOpenModule("Playbook Automation"),
+      enabled: false,
+    },
+    {
+      icon: "▤",
+      label: "Generate Report",
+      action: () => onOpenModule("Report Generator"),
+      enabled: false,
+    },
+    {
+      icon: "⬡",
+      label: "Add Asset",
+      action: () => onOpenModule("Asset Inventory"),
+      enabled: Boolean(onOpenModule),
+    },
+    {
+      icon: "♟",
+      label: "Manage Users",
+      action: () => onOpenModule("User & Team Management"),
+      enabled: Boolean(onOpenModule),
+    },
   ];
 
   return (
-    <Panel title="Quick Actions" action="Customize">
+    <Panel title="Quick Actions">
       <div className="cm-quick-grid">
-        {actions.map(([icon, label, action]) => (
+        {actions.map((item) => (
           <button
-            key={label}
+            key={item.label}
+            type="button"
             className="cm-quick"
-            onClick={action}
+            onClick={item.action}
+            disabled={!item.enabled}
+            title={
+              item.enabled
+                ? item.label
+                : "This functionality is not connected yet"
+            }
           >
-            <span>{icon}</span>
-            {label}
+            <span>{item.icon}</span>
+            {item.label}
           </button>
         ))}
       </div>
@@ -165,9 +195,16 @@ function QuickActions({ onCreateIncident, onOpenModule }) {
   );
 }
 
-function RecentIncidents({ incidents, search }) {
+function RecentIncidents({
+  incidents,
+  onOpenModule,
+}) {
   return (
-    <Panel title="Recent Incidents" action="View All">
+    <Panel
+      title="Recent Incidents"
+      action="View All"
+      onAction={() => onOpenModule("Incident Management")}
+    >
       <div className="cm-table-wrap">
         <table className="cm-table">
           <thead>
@@ -187,21 +224,22 @@ function RecentIncidents({ incidents, search }) {
               <tr key={incident.id}>
                 <td>{incident.id}</td>
                 <td>{incident.title}</td>
-
                 <td>
-                  <span className={`cm-pill ${incident.severity}`}>
+                  <span
+                    className={`cm-pill ${incident.severity}`}
+                  >
                     ✦ {incident.severity}
                   </span>
                 </td>
-
                 <td>
                   <span
-                    className={`cm-pill ${incident.status.replace(" ", "")}`}
+                    className={`cm-pill ${
+                      String(incident.status).replace(/\s/g, "")
+                    }`}
                   >
                     {incident.status}
                   </span>
                 </td>
-
                 <td>{incident.asset}</td>
                 <td>{incident.owner}</td>
                 <td>{incident.time}</td>
@@ -220,46 +258,49 @@ function RecentIncidents({ incidents, search }) {
   );
 }
 
-function IncidentAssistance({ incidents, onGetAssistance }) {
+function IncidentAssistance({
+  incidents,
+  onGetAssistance,
+  onOpenModule,
+}) {
   const assistanceCards = [
     {
       icon: "💡",
       title: "Suggested Actions",
       description: "AI-powered recommendations",
-      message:
-        "Suggested Actions: Validate evidence, check related logs, contain the affected asset, then document the result.",
     },
     {
       icon: "⌕",
       title: "Auto Investigation",
       description: "Correlates logs, alerts & assets",
-      message:
-        "Auto Investigation preview: correlate authentication events, cloud audit logs and affected assets. No automatic actions were executed.",
     },
     {
       icon: "▣",
       title: "Playbook Guidance",
       description: "Step-by-step remediation steps",
-      message:
-        "Playbook Guidance: identify scope, preserve evidence, contain the threat, remediate, and verify recovery.",
     },
   ];
 
   const openIncidents = incidents.filter(
-    (incident) => incident.status !== "Resolved"
+    (incident) =>
+      String(incident.status).toLowerCase() !== "resolved"
   );
 
   return (
-    <Panel title="Incident Management Assistance" action="View">
+    <Panel
+      title="Incident Management Assistance"
+      action="View"
+      onAction={() => onOpenModule("Incident Assistance")}
+    >
       <div className="cm-assist-cards">
         {assistanceCards.map((card) => (
           <button
             key={card.title}
+            type="button"
             className="cm-assist-card"
-            onClick={() => alert(card.message)}
+            onClick={() => onOpenModule("Incident Assistance")}
           >
             <span>{card.icon}</span>
-
             <div>
               <strong>{card.title}</strong>
               <small>{card.description}</small>
@@ -271,7 +312,6 @@ function IncidentAssistance({ incidents, onGetAssistance }) {
       <div className="cm-assist-list">
         <div className="cm-assist-list-head">
           <span>Open Incidents Needing Assistance</span>
-
           <span style={{ color: "#00d7f4" }}>
             {openIncidents.length} open
           </span>
@@ -287,6 +327,7 @@ function IncidentAssistance({ incidents, onGetAssistance }) {
             </span>
 
             <button
+              type="button"
               className="cm-small-btn"
               onClick={() => onGetAssistance(incident)}
             >
@@ -296,7 +337,9 @@ function IncidentAssistance({ incidents, onGetAssistance }) {
         ))}
 
         {openIncidents.length === 0 && (
-          <div className="cm-empty">No open incidents.</div>
+          <div className="cm-empty">
+            No open incidents.
+          </div>
         )}
       </div>
     </Panel>
@@ -320,7 +363,8 @@ function IncidentSection({
     <>
       <div className="cm-grid-bottom">
         <CloudProviderStatus />
-        <RiskyAssets />
+
+        <RiskyAssets onOpenModule={onOpenModule} />
 
         <QuickActions
           onCreateIncident={onCreateIncident}
@@ -329,11 +373,15 @@ function IncidentSection({
       </div>
 
       <div className="cm-bottom-grid">
-        <RecentIncidents incidents={filteredIncidents} />
+        <RecentIncidents
+          incidents={filteredIncidents}
+          onOpenModule={onOpenModule}
+        />
 
         <IncidentAssistance
           incidents={incidents}
           onGetAssistance={onGetAssistance}
+          onOpenModule={onOpenModule}
         />
       </div>
     </>

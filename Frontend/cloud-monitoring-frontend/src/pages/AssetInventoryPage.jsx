@@ -8,26 +8,46 @@ import AssetTable from "../components/asset-inventory/AssetTable";
 import AssetDetails from "../components/asset-inventory/AssetDetails";
 import AddAssetModal from "../components/asset-inventory/AddAssetModal";
 
-// Backend API URL
 const API_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 // Common API request function
 async function apiRequest(endpoint, options = {}) {
-  const token = sessionStorage.getItem("token");
+  const token = sessionStorage.getItem("token")?.trim();
+
+  // Check authentication token
+  if (!token) {
+    throw new Error("Token missing. Please login again.");
+  }
+
+  // Prevent duplicate Bearer prefix
+  const cleanToken = token.replace(/^Bearer\s+/i, "");
 
   const headers = {
     ...(options.body
       ? { "Content-Type": "application/json" }
       : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
+    Authorization: `Bearer ${cleanToken}`,
   };
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
   });
+
+  // Handle unauthorized request
+  if (response.status === 401) {
+    throw new Error(
+      "401 Unauthorized: Your session is invalid or expired. Please login again."
+    );
+  }
+
+  if (response.status === 403) {
+    throw new Error(
+      "403 Forbidden: You do not have permission to perform this action."
+    );
+  }
 
   if (!response.ok) {
     const errorMessage = await response.text();
@@ -55,10 +75,8 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 function AssetInventoryPage() {
-  // Asset list
   const [assets, setAssets] = useState([]);
 
-  // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -74,7 +92,7 @@ function AssetInventoryPage() {
   const [editingAsset, setEditingAsset] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch assets from backend
+  // Fetch assets
   const fetchAssets = async () => {
     try {
       setLoading(true);
@@ -91,7 +109,6 @@ function AssetInventoryPage() {
     }
   };
 
-  // Load assets when page opens
   useEffect(() => {
     fetchAssets();
   }, []);
@@ -103,7 +120,7 @@ function AssetInventoryPage() {
 
       const matchesSearch =
         asset.name?.toLowerCase().includes(searchText) ||
-        asset.id?.toLowerCase().includes(searchText) ||
+        String(asset.id ?? "").toLowerCase().includes(searchText) ||
         asset.owner?.toLowerCase().includes(searchText) ||
         asset.ipAddress?.toLowerCase().includes(searchText) ||
         asset.region?.toLowerCase().includes(searchText);
@@ -161,13 +178,12 @@ function AssetInventoryPage() {
     setIsModalOpen(true);
   };
 
-  // Add or update asset through backend
+  // Add or update asset
   const handleSaveAsset = async (assetData) => {
     try {
       setError("");
 
       if (editingAsset) {
-        // Update existing asset
         const updatedAsset = await apiRequest(
           `/api/assets/${encodeURIComponent(editingAsset.id)}`,
           {
@@ -187,7 +203,6 @@ function AssetInventoryPage() {
         setEditingAsset(null);
         setSelectedAsset(null);
       } else {
-        // Add new asset
         const newAsset = await apiRequest("/api/assets", {
           method: "POST",
           body: JSON.stringify(assetData),
@@ -209,7 +224,7 @@ function AssetInventoryPage() {
     }
   };
 
-  // Delete asset through backend
+  // Delete asset
   const handleDeleteAsset = async (assetId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this asset?"
@@ -248,7 +263,7 @@ function AssetInventoryPage() {
     setSelectedAsset(asset);
   };
 
-  // Close add/edit modal
+  // Close modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingAsset(null);

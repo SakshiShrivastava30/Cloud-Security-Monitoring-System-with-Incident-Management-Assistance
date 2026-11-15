@@ -1,9 +1,10 @@
 
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-function DashboardStats({ incidents = [] }) {
+function DashboardStats({ incidents = [], onOpenModule }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,7 +14,11 @@ function DashboardStats({ incidents = [] }) {
 
     async function loadAssets() {
       try {
-        const token = sessionStorage.getItem("token");
+        const token =
+          sessionStorage.getItem("token") ||
+          sessionStorage.getItem("jwtToken") ||
+          localStorage.getItem("token") ||
+          "";
 
         const response = await fetch(`${API}/api/assets`, {
           headers: token
@@ -27,7 +32,9 @@ function DashboardStats({ incidents = [] }) {
         }
 
         const data = await response.json();
+
         setAssets(Array.isArray(data) ? data : []);
+        setError("");
       } catch (err) {
         if (err.name !== "AbortError") {
           setError(err.message);
@@ -47,7 +54,8 @@ function DashboardStats({ incidents = [] }) {
   const totalAssets = assets.length;
 
   const vulnerabilities = assets.reduce(
-    (sum, asset) => sum + (Number(asset.vulnerabilities) || 0),
+    (sum, asset) =>
+      sum + (Number(asset.vulnerabilities) || 0),
     0
   );
 
@@ -58,7 +66,8 @@ function DashboardStats({ incidents = [] }) {
   ).length;
 
   const openIncidents = incidents.filter(
-    (incident) => incident.status !== "Resolved"
+    (incident) =>
+      String(incident.status).toLowerCase() !== "resolved"
   ).length;
 
   const metrics = [
@@ -68,6 +77,7 @@ function DashboardStats({ incidents = [] }) {
       value: loading ? "..." : totalAssets,
       detail: "Registered cloud assets",
       color: "#04d9f5",
+      module: "Asset Inventory",
     },
     {
       icon: "⚠",
@@ -75,6 +85,7 @@ function DashboardStats({ incidents = [] }) {
       value: openIncidents,
       detail: "From connected incident data",
       color: "#ff4c4c",
+      module: "Incident Management",
     },
     {
       icon: "⬡",
@@ -82,6 +93,7 @@ function DashboardStats({ incidents = [] }) {
       value: loading ? "..." : vulnerabilities,
       detail: "Across registered assets",
       color: "#f5428a",
+      module: "Vulnerability Scanner",
     },
     {
       icon: "▤",
@@ -89,6 +101,7 @@ function DashboardStats({ incidents = [] }) {
       value: loading ? "..." : criticalAssets,
       detail: "Critical classification or risk score ≥ 85",
       color: "#00dfaa",
+      module: "Asset Inventory",
     },
     {
       icon: "♟",
@@ -96,13 +109,34 @@ function DashboardStats({ incidents = [] }) {
       value: "—",
       detail: "Users API not connected",
       color: "#159bff",
+      module: "User & Team Management",
     },
   ];
+
+  const handleCardClick = (module) => {
+    if (onOpenModule) {
+      onOpenModule(module);
+    }
+  };
 
   return (
     <section className="cm-metrics">
       {metrics.map((metric) => (
-        <article className="cm-metric" key={metric.label}>
+        <article
+          className="cm-metric"
+          key={metric.label}
+          role="button"
+          tabIndex={0}
+          title={`Open ${metric.module}`}
+          onClick={() => handleCardClick(metric.module)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              handleCardClick(metric.module);
+            }
+          }}
+          style={{ cursor: "pointer" }}
+        >
           <div className="cm-metric-top">
             <span
               className="cm-metric-icon"
@@ -121,7 +155,8 @@ function DashboardStats({ incidents = [] }) {
           </div>
 
           <div className="cm-sub">
-            {error && metric.label !== "Open Incidents" &&
+            {error &&
+            metric.label !== "Open Incidents" &&
             metric.label !== "Active Users"
               ? "Unable to load asset data"
               : metric.detail}

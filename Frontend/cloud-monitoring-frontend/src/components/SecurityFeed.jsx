@@ -34,11 +34,14 @@ const feed = [
   },
 ];
 
-function SecurityFeed() {
+function SecurityFeed({ onOpenModule }) {
   return (
     <Panel
       title="Live Security Feed"
       action="View All"
+      onAction={() =>
+        onOpenModule("System Activity Monitoring")
+      }
       className="cm-feed-panel"
     >
       <div className="cm-feed-list">

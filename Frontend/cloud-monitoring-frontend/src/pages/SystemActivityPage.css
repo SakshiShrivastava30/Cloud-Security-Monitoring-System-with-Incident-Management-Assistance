@@ -1,0 +1,286 @@
+
+.sam-page {
+  padding: 25px;
+  color: #e8edf5;
+}
+
+.sam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.sam-eyebrow {
+  color: #46d8f4;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.sam-header h1 {
+  font-size: 27px;
+  margin: 8px 0;
+}
+
+.sam-subtitle {
+  color: #929eaf;
+  font-size: 14px;
+}
+
+.sam-refresh,
+.sam-pagination button {
+  padding: 10px 16px;
+  border: 1px solid #34445d;
+  border-radius: 7px;
+  background: #182438;
+  color: white;
+  cursor: pointer;
+}
+
+.sam-refresh:disabled,
+.sam-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sam-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.sam-stat-card {
+  background: #111c2d;
+  border: 1px solid #293a52;
+  border-radius: 10px;
+  padding: 19px;
+}
+
+.sam-stat-card span,
+.sam-stat-card small {
+  display: block;
+  color: #9aa9bc;
+  font-size: 13px;
+}
+
+.sam-stat-card strong {
+  display: block;
+  font-size: 27px;
+  margin: 12px 0;
+  color: #f1f5fb;
+}
+
+.sam-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sam-toolbar input,
+.sam-toolbar select {
+  background: #111c2d;
+  border: 1px solid #34445d;
+  color: white;
+  border-radius: 7px;
+  padding: 11px 13px;
+  min-width: 145px;
+}
+
+.sam-toolbar input {
+  flex: 1;
+  min-width: 230px;
+}
+
+.sam-table-wrapper {
+  background: #111c2d;
+  border: 1px solid #293a52;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sam-table-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+}
+
+.sam-table-heading h2 {
+  font-size: 17px;
+}
+
+.sam-table-heading span {
+  color: #9aa9bc;
+  font-size: 12px;
+}
+
+.sam-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.sam-table th,
+.sam-table td {
+  padding: 14px 12px;
+  border-top: 1px solid #293a52;
+  font-size: 12px;
+}
+
+.sam-table th {
+  color: #a9b7ca;
+  background: #17253a;
+  white-space: nowrap;
+}
+
+.sam-table td {
+  color: #d5deea;
+}
+
+.sam-severity,
+.sam-category {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px 9px;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.sam-severity.high {
+  background: #51252c;
+  color: #ff818a;
+}
+
+.sam-severity.medium {
+  background: #4b3a20;
+  color: #ffc56b;
+}
+
+.sam-severity.low {
+  background: #203c50;
+  color: #70c9ef;
+}
+
+.sam-severity.informational {
+  background: #25364b;
+  color: #a8c3e4;
+}
+
+.sam-category {
+  background: #24364c;
+  color: #9bd8f5;
+}
+
+.sam-details-btn {
+  padding: 6px 12px;
+  background: #203a53;
+  border: 1px solid #42617e;
+  border-radius: 5px;
+  color: #9bd8f5;
+  cursor: pointer;
+}
+
+.sam-empty,
+.sam-message {
+  text-align: center;
+  padding: 35px !important;
+  color: #9aa9bc !important;
+}
+
+.sam-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  color: #b8c5d6;
+  font-size: 13px;
+}
+
+.sam-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #000b;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.sam-modal {
+  width: min(650px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 23px;
+  background: #152237;
+  border: 1px solid #354968;
+  border-radius: 12px;
+}
+
+.sam-modal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.sam-modal-header button {
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.sam-modal p {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.sam-json {
+  margin-top: 12px;
+  padding: 15px;
+  background: #0b1422;
+  border-radius: 7px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .sam-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sam-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .sam-table {
+    min-width: 850px;
+  }
+}
+
+@media (max-width: 550px) {
+  .sam-page {
+    padding: 14px;
+  }
+
+  .sam-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sam-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .sam-stat-card {
+    padding: 13px;
+  }
+}

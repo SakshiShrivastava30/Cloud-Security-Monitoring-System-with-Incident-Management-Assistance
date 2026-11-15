@@ -11,13 +11,11 @@ function Panel({
       <div className="cm-panel-heading">
         <h3>{title}</h3>
 
-        {action && (
+        {action && onAction && (
           <button
             type="button"
             className="cm-text-button"
-            onClick={
-              onAction || (() => alert(`${title} workspace selected`))
-            }
+            onClick={onAction}
           >
             {action} →
           </button>
